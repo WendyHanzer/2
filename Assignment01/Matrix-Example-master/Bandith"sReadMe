@@ -1,0 +1,2 @@
+This code rotates the cube clockwise and traslates the cube counter clockwise.
+The shader loaders has some error handling that is similar to the convention establish by the rest of the file. 
