@@ -1,0 +1,22 @@
+This is my PA02. 
+***Required Features***
+Menu
+-Right click to access menu.
+-Click on start or stop menu to test requirements.
+Keyboard
+-'a' key will reverse rotation.
+Mouse
+-Left click will reverse rotation.
+***********************
+
+***Other Features***
+Menu 
+-Added quit option.
+Keyboard
+-Keys 1 - 6 will modify rotation speed.
+-Esc key will quit program. 
+Mouse
+Has no other feature. 
+********************
+
+
