@@ -380,7 +380,9 @@ char* shaderLoader(const char* shaderFile){
 			buffer = new char[len+1];
 			while (file.good()){
 				buffer[i] = file.get();
-				i++;
+				if (!file.eof()){
+					i++;
+				}
 			}
 			buffer[i] = '\0';
 		} else {
