@@ -1,5 +1,6 @@
 #include <GL/glew.h> // glew must be included before the main gl libs
 #include <GL/glut.h> // doing otherwise causes compiler shouting
+#include <GL/freeglut.h>
 #include <iostream>
 #include <fstream>
 #include <chrono>
@@ -49,8 +50,12 @@ void reshape(int n_w, int n_h);
 //PA02 keyboard and mouse callbacks
 void keyboard(unsigned char key, int x, int y);
 void mouse(int button, int state, int x, int y);
+
 //PA03 special key callbacks
 void specialKey(int key, int x, int y);
+//extra credit PA03
+void drawText(char* text, GLfloat x, GLfloat y);
+
 
 //--Resource management
 bool initialize();
@@ -488,5 +493,4 @@ void specialKey(int key, int x, int y){
 		dir = 1.0f;
 	}
 }
-
 

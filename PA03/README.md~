@@ -27,5 +27,5 @@ Added required functions for assignment.
 
 ***Bugs***
 Tor mentions a bug with shader loader. The bug appears if there is garbage read between the end of the shader's text and before the \0 is inserted. This did not cause point deduction but maybe probmatic latter. 
-Status: Not yet able to replicate. 
+Status: Attempt fix not sure it works because I was not able to replicate the bug. 
 **********

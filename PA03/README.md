@@ -1,31 +1,24 @@
 @Author Bandith Phommounivong
-This is my PA02. 
+This is my PA03. 
 ***Required Features***
-Menu
--Right click to access menu.
--Click on start or stop menu to test requirements.
-Keyboard
--'a' key will reverse rotation.
-Mouse
--Left click will reverse rotation.
+Keyboard Special Keys
+-Left key causes a clockwise rotation.
+-right key causes a counter clockwise rotation.
+-Could have just change rotation direction instead by multiplying dir by -1 but decided this wanted two keys to do different things.
 ***********************
 
 ***Other Features***
-Menu 
--Added quit option.
-Keyboard
--Keys 1 - 6 will modify rotation speed.
--Esc key will quit program. 
-Mouse
-Has no other feature. 
+Speed
+-Both moon and planet use the same speed variable for rotation however moon will always orbit correctly regardless of planet rotation.
+-If the planet is not allowed to rotate, the moon rotation speed can still be changed using number keys 1-6.
 ********************
 
 ***Notes***
-Added global variables for speed, direction, and spin flag. 
-Added required functions for assignment.
+-Moon orbit direction is not affected by planet however, rotation direction is though.
+-Can be change but requirement only state orbit needs to be unaffected.   
 ***********
 
 ***Bugs***
-Tor mentions a bug with shader loader. The bug appears if there is garbage read between the end of the shader's text and before the \0 is inserted. This did not cause point deduction but maybe probmatic latter. 
-Status: Attempt fix not sure it works because I was not able to replicate the bug. 
+-Tried the extra credit. Used glbitmapcharacter, glbitmapstring, and the stroke functions with no success. 
+-I tried rastering coordinates and then using those function but it would not show text on my machine. However, on other people's machine it would show up but rotate around moon. 
 **********
