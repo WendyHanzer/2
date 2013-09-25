@@ -55,6 +55,7 @@ char* fname;
 Vertex* loadOBJ(char* obj);
 float colorConv(float i);
 unsigned int numOfVert = 0;
+float amount = 0;
 //--Resource management
 bool initialize();
 void cleanUp();
@@ -152,7 +153,7 @@ void render(){
                             sizeof(Vertex),
                             (void*)offsetof(Vertex,color));
 
-     glDrawArrays(GL_TRIANGLES, 0, 36);//mode, starting index, count
+     glDrawArrays(GL_TRIANGLES, 0, numOfVert);//mode, starting index, count
 
      //clean up
      glDisableVertexAttribArray(loc_position);
@@ -171,6 +172,7 @@ void update(){
      angle += dt * M_PI/2; //move through 90 degrees a second which is in radians
    
      model = glm::translate( glm::mat4(1.0f), glm::vec3(4.0 * sin(angle), 0.0, 4.0 * cos(angle)) );
+	//model = glm::scale( model, glm::vec3(50.0f, 50.0f, 50.0f));
      // model is our cube
      // rotate is a function that will do matrix math with rotation matrix
      // mat4(1.0f) is our that converts result to 4x4 matrix
@@ -181,7 +183,8 @@ void update(){
      	//converts rad to angles then multiply by direction and speed of spin
           spin += speed * dir * dt * 90;   
 	}
-	model = model * glm::rotate(glm::mat4(1.0f), spin, glm::vec3(0.0f,1.0f, 0.0f));  
+	model = model * glm::rotate(glm::mat4(1.0f), spin, glm::vec3(0.0f,1.0f, 1.0f));  
+ 
      // Update the state of the scene
      glutPostRedisplay();//call the display callback
 }
@@ -382,7 +385,7 @@ void keyboard(unsigned char key, int x, int y){
 		case 27: //excape key
 			exit(0);
 			break;
-		case 'a':
+		case 'r':
 			dir = dir * -1.0f;
 			break;
 		//spin speed control
@@ -418,8 +421,12 @@ Vertex* loadOBJ(char* obj){
 	int numRefVert = 0;
 	//size of temporary vertice array
 	int sizeOfTemp = 2;
+	
 	bool hasVT = false;
 	bool hasNorm = false;
+	bool hasFourth = false;	
+	int match = 0;
+		
 
 	//Temporary Reference Vertices array, will be resized dynamically and then exactly sized
 	Vertex* tempV = new Vertex[sizeOfTemp];	
@@ -429,7 +436,7 @@ Vertex* loadOBJ(char* obj){
 	    printf("Impossible to open the file !\n");
 	    return NULL;
 	}
-	
+
 	while( 1 ){
  
 	    char lineHeader[128];
@@ -480,23 +487,41 @@ Vertex* loadOBJ(char* obj){
 
 
 		}else if ( strcmp( lineHeader, "f" ) == 0 ){
-		    unsigned int vertexIndex[3], uvIndex[3], normalIndex[3];
+		    unsigned int vertexIndex[4], uvIndex[4], normalIndex[4];
 			if (hasVT && hasNorm){
-				fscanf(file, "%i/%i/%i %i/%i/%i %i/%i/%i\n", &vertexIndex[0], &uvIndex[0], &normalIndex[0], &vertexIndex[1], 					&uvIndex[1], &normalIndex[1], &vertexIndex[2], &uvIndex[2], &normalIndex[2]);
+				match = fscanf(file, "%i/%i/%i %i/%i/%i %i/%i/%i %i/%i/%i\n", &vertexIndex[0], &uvIndex[0], &normalIndex[0], &vertexIndex[1], &uvIndex[1], &normalIndex[1], &vertexIndex[2], &uvIndex[2], &normalIndex[2], &vertexIndex[3], &uvIndex[3], &normalIndex[3] );
+				if (match == 12){
+					hasFourth = true;
+				}
 		
 			} else if (!hasVT && hasNorm) {
-				fscanf(file, "%i//%i %i//%i %i//%i\n", &vertexIndex[0], &normalIndex[0], &vertexIndex[1], &normalIndex[1], &vertexIndex[2], &normalIndex[2]);
+				match = fscanf(file, "%i//%i %i//%i %i//%i %i//%i\n", &vertexIndex[0], &normalIndex[0], &vertexIndex[1], &normalIndex[1], &vertexIndex[2], &normalIndex[2], &vertexIndex[3], &normalIndex[3]);
+				if (match == 8){
+					hasFourth = true;
+				}
+				
 			} else if (hasVT && !hasNorm){
-				fscanf(file, "%i/%i/ %i/%i/ %i/%i/\n", &vertexIndex[0], &uvIndex[0], &vertexIndex[1], &uvIndex[1], &vertexIndex[2], &uvIndex[2]);
+				match = fscanf(file, "%i/%i %i/%i %i/%i %i/%i\n", &vertexIndex[0], &uvIndex[0], &vertexIndex[1], &uvIndex[1], &vertexIndex[2], &uvIndex[2], &vertexIndex[3], &uvIndex[3]);
+				if (match == 8){
+					hasFourth = true;
+				}
 			} else if (!hasVT && !hasNorm){	
-				fscanf(file, "%i %i %i\n", &vertexIndex[0], &vertexIndex[1], &vertexIndex[2]);
+				match = fscanf(file, "%i %i %i %i\n", &vertexIndex[0], &vertexIndex[1], &vertexIndex[2], &vertexIndex[3]);
+				if (match == 4){
+					hasFourth = true;
+				}
 			}
 
 			//saving face value for reference processing    
 			vertexIndices.push_back(vertexIndex[0]);
 			vertexIndices.push_back(vertexIndex[1]);
 			vertexIndices.push_back(vertexIndex[2]);
-			    
+			//quad conversion
+			if (hasFourth){
+				vertexIndices.push_back(vertexIndex[0]);
+				vertexIndices.push_back(vertexIndex[2]);
+				vertexIndices.push_back(vertexIndex[3]);
+			}   
 		}
 
 	}
@@ -512,12 +537,15 @@ Vertex* loadOBJ(char* obj){
 		}
 	delete[] tempV;
 	tempV = temp;	
-			
+	
+	
 	numOfVert = vertexIndices.size();
+	
 	//processing data
 	// For each vertex of each triangle
 	//our final opengl array
 	Vertex* out = new Vertex[numOfVert];
+	
 	for( unsigned int i=0; i< numOfVert; i++ ){
 		unsigned int vertexIndex = vertexIndices[i];
 		out[i].position[0] = tempV[vertexIndex-1].position[0];
@@ -527,11 +555,12 @@ Vertex* loadOBJ(char* obj){
 		out[i].color[1] = tempV[vertexIndex-1].color[1];
 		out[i].color[2] = tempV[vertexIndex-1].color[2];
 	}
+
 	return out;	
 }
 
 //determines color based on whether a position is less than 0
-float colorConv(float i){
+GLfloat colorConv(GLfloat i){
 	if (i <= 0.0){
 		return 0.0;
 	} else {
