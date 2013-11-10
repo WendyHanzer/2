@@ -1,0 +1,66 @@
+varying vec2 UV;
+varying vec3 color;
+uniform sampler2D texture;
+
+
+//added for lighting
+varying vec3 fN_normal;
+varying vec3 fE_position;
+varying vec3 fL_lightPosition;
+varying float w; 
+
+uniform vec4 AmbientProduct, DiffuseProduct, SpecularProduct;
+uniform vec4 LightPosition;
+uniform float Shininess;
+uniform float constantAttenuation, linearAttenuation, quadraticAttenuation;
+uniform float spotCutoff, spotExponent;
+uniform vec3 spotDirection;
+ 
+void main(void){
+
+   //added for lighting
+   //normalize the input lighting vectors
+   vec3 N = normalize(fN_normal);
+   vec3 E = normalize (fE_position);
+   vec3 L = normalize (fL_lightPosition); 
+   float attenuation = 1.0;
+
+   //setup the halfway vector
+   vec3 H = normalize (L + E);
+   
+   //point and spot light
+   if (w != 0.0){
+		//fl_light ->p2lightsrc
+		float dis = length(fL_lightPosition);
+   		attenuation = 1.0 / (constantAttenuation + linearAttenuation * dis + quadraticAttenuation * dis * dis);
+		
+		if (spotCutoff <= 90.0){//spotlight
+			float clampedCosine = max(0.0, dot(-L, normalize(spotDirection)));
+          	if (clampedCosine < cos(radians(spotCutoff))){ // outside of spotlight cone?
+			 	attenuation = 0.0;
+            	} else{
+              		attenuation = attenuation * pow(clampedCosine, spotExponent);   
+              	}
+     	}
+    }
+   
+	
+   //Code below doesn't change regardless of source
+   vec4 ambient = AmbientProduct;
+  
+   float kd = max (dot(L, N), 0.0);
+   vec4 diffuse = attenuation * DiffuseProduct * kd;
+
+   //float ks = pow(max(dot(N, H), 0.0), Shininess);
+   float ks = pow(max(0.0, dot(reflect(-L, N), E)), Shininess);
+   vec4 specular = attenuation * SpecularProduct * ks;
+
+   //discard the specular highlight if lights behind the vertex
+   if (dot(L, N) < 0.0 )
+     specular = vec4(0.0, 0.0, 0.0, 1.0);
+
+   gl_FragColor = ambient + diffuse + specular;
+   gl_FragColor.a = 1.0;
+   gl_FragColor *= vec4(color.rgb, 1.0) * texture2D(texture, UV);
+
+}
