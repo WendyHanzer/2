@@ -1,0 +1,46 @@
+PA04: Model Loading
+========================================
+
+What this project does
+----------------------
+
+> Loads a model created in blender and displays it on the screen. It *should* 
+> handle triangles as well as quads (triangulating the shape if it is a
+> quadrilateral.  It also should handle models that have vetices only,
+> vertices and textures, verticies and normals, or all 3.
+
+What this project does not
+--------------------------
+> This project does not handle complex models, models other than .obj files
+> or models with complex (more than 4 sides) or concave shapes.
+> 
+> It's just a simple loader! 
+
+The Good, Bad, and Ugly
+-----------------------
+
+> The key source of frustrations for this project came from getting the model
+> to properly render to the screen, but this problem was resolved by setting
+> the number of vertices to render in the render call back to be equal to the 
+> number of vertices in the model.  
+> 
+> Once this was resolved, the rest was relatively easy.  The program should
+> detect if it is dealing with a quad, and if so triangulate.  If not, it
+> handles the regular triangle face.
+> 
+> The one issue that does persist is I receive failure to compile when I try
+> to compile a cube.  The dragon and my hockey table load fine, but the cube
+> fails everytime.  I thought this was due to not having a null terminator on 
+> my shader string, but even after adding it still fails.
+> 
+> Overall a much greater success than the original submission
+
+
+
+
+Building This Example
+---------------------
+
+*This example requires GLM*
+
+The excutable will be put in bin
