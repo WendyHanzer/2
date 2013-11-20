@@ -1,0 +1,36 @@
+attribute vec3 v_position;
+attribute vec3 v_color;
+attribute vec3 v_normal;
+attribute vec2 texcoord;
+
+uniform mat4 mvpMatrix;
+
+varying vec3 color;
+varying vec2 UV;
+
+//added for lighting
+varying vec3 fN_normal;
+varying vec3 fE_position;
+varying vec3 fL_lightPosition;
+varying float w;
+uniform vec4 LightPosition;
+
+void main(void){
+   gl_Position = mvpMatrix * vec4(v_position, 1.0);
+   color = v_color;
+   UV = texcoord;
+
+   //added for lighting
+   fN_normal = v_normal;
+   fE_position = v_position;
+   fL_lightPosition = LightPosition.xyz;
+
+   //distant lighting will have this default
+   w = 0.0;
+
+   if (LightPosition.w != 0.0){
+     //attenuation will be changed later for point or spot light
+     fL_lightPosition = LightPosition.xyz - v_position;
+     w = 1.0;
+   }
+}
