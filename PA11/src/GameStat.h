@@ -17,22 +17,21 @@ struct Player{
 
 class GameStat{
 	public:
-		GameStat(char*, char*);
+		GameStat(char*);
 		~GameStat();
 		
-		void draw();
+		std::string* draw();
 		bool save();
 		bool read();
-		void scored(bool isP1);
+		void scored(int, float, int);
 		
 		
 	private:
-		int find(char* name);
+		int find(int diff);
 		void update(Player* p1);
 		int numTop10;
 		Player* top10;
 		Player* play1;
-		Player* play2;
 };
 
 #endif

@@ -17,7 +17,7 @@ void Model::draw(glm::mat4 mvp){
     glDrawArrays(GL_TRIANGLES, 0, getNumVertices());//mode, starting index, count
 }
 
-void Model::setupRender(Light light){
+void Model::setupRender(Light* light){
     //enable the shader program
     glUseProgram(program);
 
@@ -68,9 +68,9 @@ void Model::setupRender(Light light){
                    texData);
 
   // Initialize shader lighting parameters
-  glm::vec4 ambient_product = light.light_ambient * material.material_ambient;
-  glm::vec4 diffuse_product = light.light_diffuse * material.material_diffuse;
-  glm::vec4 specular_product = light.light_specular * material.material_specular;
+  glm::vec4 ambient_product = (light[0].light_ambient + light[1].light_ambient) * material.material_ambient;
+  glm::vec4 diffuse_product = (light[0].light_diffuse + light[1].light_diffuse) * material.material_diffuse;
+  glm::vec4 specular_product = (light[0].light_specular + light[1].light_specular) * light[1].light_specular * material.material_specular;
 
   //assign the parameters to their variables in the shader program
   glUniform4fv( glGetUniformLocation(program, "AmbientProduct"), 
@@ -79,18 +79,45 @@ void Model::setupRender(Light light){
                 1, glm::value_ptr(diffuse_product) );
   glUniform4fv( glGetUniformLocation(program, "SpecularProduct"), 
                 1, glm::value_ptr(specular_product) );
+  float* lpos = new float[8];	
+  lpos[0] = light[0].light_position.x;
+  lpos[1] = light[0].light_position.y;
+  lpos[2] = light[0].light_position.z;
+  lpos[3] = light[0].light_position.w;
+  lpos[4] = light[1].light_position.x;
+  lpos[5] = light[1].light_position.y;
+  lpos[6] = light[1].light_position.z;
+  lpos[7] = light[1].light_position.w;
+	
   glUniform4fv( glGetUniformLocation(program, "LightPosition"), 
-                1, glm::value_ptr(light.light_position) );
+                2, lpos );
   glUniform1f( glGetUniformLocation(program, "Shininess"), material.material_shininess );
 
   //added for spot lights
+  float* spotDir = new float[6];
+  spotDir[0] = light[0].spotDirection.x;
+  spotDir[1] = light[0].spotDirection.y;
+  spotDir[2] = light[0].spotDirection.z;
+  spotDir[3] = light[1].spotDirection.x;
+  spotDir[4] = light[1].spotDirection.y;
+  spotDir[5] = light[1].spotDirection.z;
+ 
+  
   glUniform3fv( glGetUniformLocation(program, "spotDirection"), 
-			 1, glm::value_ptr(light.spotDirection));
-  glUniform1f( glGetUniformLocation(program, "constantAttenuation"), light.constantAttenuation);
-  glUniform1f( glGetUniformLocation(program, "linearAttenuation"), light.linearAttenuation);
-  glUniform1f( glGetUniformLocation(program, "quadraticAttenuation"), light.quadraticAttenuation);
-  glUniform1f( glGetUniformLocation(program, "spotCutoff"), light.spotCutoff);
-  glUniform1f( glGetUniformLocation(program, "spotExponent"), light.spotExponent);
+			 2, spotDir);
+
+  glUniform1f( glGetUniformLocation(program, "constantAttenuation"), light->constantAttenuation);
+  glUniform1f( glGetUniformLocation(program, "linearAttenuation"), light->linearAttenuation);
+  glUniform1f( glGetUniformLocation(program, "quadraticAttenuation"), light->quadraticAttenuation);
+  float* spotCut = new float[2];
+  spotCut[0] = light[0].spotCutoff;
+  spotCut[1] = light[1].spotCutoff;
+
+  glUniform1fv( glGetUniformLocation(program, "spotCutoff"), 2, spotCut);
+  float* spotExp = new float[2];
+  spotExp[0] = light[0].spotExponent;
+  spotExp[1] = light[1].spotExponent;
+  glUniform1fv( glGetUniformLocation(program, "spotExponent"), 2, spotExp);
 
 }
 
@@ -139,7 +166,14 @@ bool Model::init(const char* fileName, const aiScene* scene){
     glGetShaderiv(vertex_shader, GL_COMPILE_STATUS, &shader_status);
     if(!shader_status)
     {
+       GLint length;
+	   glGetShaderiv(vertex_shader, GL_INFO_LOG_LENGTH, &length);
         std::cerr << "[F] FAILED TO COMPILE VERTEX SHADER!" << std::endl;
+	   GLchar* log = (GLchar*)malloc(length);
+	   glGetShaderInfoLog(vertex_shader, length, 0, log);
+        printf("%s\n", log);
+	   free(log);
+        
         return false;
     }
 
@@ -151,7 +185,14 @@ bool Model::init(const char* fileName, const aiScene* scene){
 
     if(!shader_status)
     {
-        std::cerr << "[F] FAILED TO COMPILE FRAGMENT SHADER!" << std::endl;
+        GLint length;
+	   glGetShaderiv(fragment_shader, GL_INFO_LOG_LENGTH, &length);
+        std::cerr << "[F] FAILED TO COMPILE frag SHADER!" << std::endl;
+	   GLchar* log = (GLchar*)malloc(length);
+	   glGetShaderInfoLog(fragment_shader, length, 0, log);
+        printf("%s\n", log);
+	   free(log);
+        
         return false;
     }
 
@@ -406,7 +447,7 @@ bool Scene::initMeshes(const char* fileName) {
   return true;
 }
 
-void Scene::draw(glm::mat4 mvp, Light light){
+void Scene::draw(glm::mat4 mvp, Light* light){
   for (unsigned int i=0; i < meshes.size(); i++){
     //std::cout << "Drawing mesh: " << i << "\n";
     //setup pointers and shader program 

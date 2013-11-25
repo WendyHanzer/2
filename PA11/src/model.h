@@ -58,7 +58,7 @@ class Model {
     ~Model();
 
     //sets up shader program and pointers
-    void setupRender(Light);
+    void setupRender(Light*);
     void cleanupRender();
     void draw(glm::mat4 mvp);//actually performs the drawing, should be used for instancing
     bool init(const char* mesh, const aiScene* scene);
@@ -106,7 +106,7 @@ class Scene{
      //load meshes and initialize them
      bool initMeshes(const char* fileName);
      //draw all meshes in the scene
-     void draw(glm::mat4 mvp, Light light);
+     void draw(glm::mat4 mvp, Light* light);
 
   private:
 

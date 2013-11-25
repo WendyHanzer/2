@@ -15,12 +15,16 @@ How to run this project
 -----------------------
 > To run this project, use this command line argument: 
 >   
-> * ./Labryinth 3LetterPlayername
+> * ./AirHockey
 >  
 
 What this project is
 --------------------
-> For the official readme please look at the write up.
+> This is a rough draft for our Labyrinth project, and quite a rough
+> draft at that.  We have our board completed (and looking good), and
+> also have lighting correctly implemented. We also have controls to 
+> rotate the board (via the arrow keys), and some testing tools so you
+> can manually move the ball with the w, a, s, and d keys.
 
 Technical issues
 ----------------

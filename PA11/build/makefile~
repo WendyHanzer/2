@@ -13,7 +13,7 @@ CXXFLAGS= -g -Wall -std=c++0x -Wl,-rpath -Wl,LIBDIR -I/usr/local/include/bullet
 all: ../bin/Matrix
 
 ../bin/Matrix: ../src/main.cpp
-	$(CC) $(CXXFLAGS) ../src/GLDebugDrawer.h ../src/GLDebugDrawer.cpp ../src/main.cpp ../src/GameStat.h ../src/GameStat.cpp ../src/model.h ../src/model.cpp -o ../bin/Labryinth $(LIBS) 
+	$(CC) $(CXXFLAGS) ../src/GLDebugDrawer.h ../src/GLDebugDrawer.cpp ../src/main.cpp ../src/GameStat.h ../src/GameStat.cpp ../src/model.h ../src/model.cpp -o ../bin/AirHockey $(LIBS) 
 #model.o:
 #	$(CC) -c ../src/model.h ../src/model.cpp
 
